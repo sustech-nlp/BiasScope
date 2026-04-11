@@ -28,11 +28,6 @@ LLM-as-a-judge is widely used, but **evaluation bias** undermines reliability. B
 
 ## Requirements
 
-- Linux + NVIDIA GPU (CUDA)  
-- **Python 3.12** recommended (e.g. a dedicated conda/venv for vLLM)  
-- [vLLM](https://github.com/vllm-project/vllm) for local **judge** and (by default) **teacher** inference  
-- Optional: OpenAI-compatible HTTP API for the **teacher** only (`--teacher-backend api`)
-
 Install:
 
 ```bash
@@ -40,26 +35,7 @@ pip install -r requirements.txt
 
 ```
 
-If `torch` / `vLLM` wheels fail, use the [vLLM install guide](https://docs.vllm.ai) and a matching PyTorch CUDA index (e.g. `cu128` for this lock).
-
-## Data layout
-
-Place preference-style **Parquet** files under `data/` (or anywhere you reference from `run_biasscope.sh`). Required columns: `question`, `response_A`, `response_B`, `label` (`1` or `2`). Optional: `domain` (used for per-domain error rates in Stage 2 when present).
-
-Shipped **examples** in this repo:
-
-| Path | Role |
-|------|------|
-| `data/bias/basic_biases.json` | Seed bias library (definitions). |
-| `data/rewardbench/rewardbench_filtered.parquet` | Example Stage 1 analysis set (`ANALYSIS_DATASETS` in `run_biasscope.sh`). |
-| `data/judgeBench/judge_bench.parquet` | Example Stage 2 test set (`TEST_DATA`). |
-
-For a **published benchmark** aligned with the paper, use [**JudgeBench-Pro** on Hugging Face](https://huggingface.co/datasets/SUSTech-NLP/JudgeBench-Pro) and point your script to the exported Parquet (see **Paper and datasets** above).
-
-**Outputs** (ignored by `.gitignore` by default):
-
-- `results/<judge_model>/<dataset_stem>/<bias_lib_stem>/` — metrics such as `avg_error_rate.json`, `bias_number.json`
-- `data/modified_data/...` — attacked / synthesized parquet caches
+If `torch` / `vLLM` wheels fail, use the [vLLM install guide](https://docs.vllm.ai) and a matching PyTorch CUDA index.
 
 ## Quick start
 
