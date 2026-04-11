@@ -4,7 +4,9 @@ Official implementation for **BiasScope: Towards Automated Detection of Bias in 
 
 <div align="center">
 
-[![Paper](https://img.shields.io/badge/paper-arXiv:2602.09383-b31b1b.svg)](https://arxiv.org/abs/2602.09383) [![JudgeBench-Pro](https://img.shields.io/badge/dataset-JudgeBench--Pro-FFD21E?logo=huggingface&logoColor=000)](https://huggingface.co/datasets/SUSTech-NLP/JudgeBench-Pro)
+<img src="biasscope.png" alt="BiasScope overview" width="720"/>
+
+[![Paper](https://img.shields.io/badge/paper-arXiv:2602.09383-b31b1b.svg)](https://arxiv.org/abs/2602.09383) [![JudgeBench-Pro](https://img.shields.io/badge/dataset-JudgeBench--Pro-FFD21E?logo=huggingface&logoColor=fff&labelColor=FFD21E)](https://huggingface.co/datasets/SUSTech-NLP/JudgeBench-Pro)
 
 </div>
 
