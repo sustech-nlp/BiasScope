@@ -51,6 +51,11 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("openai").setLevel(logging.WARNING)
 
 
+def _log_stage(title: str) -> None:
+    bar = "=" * 22
+    logger.info("%s %s %s", bar, title, bar)
+
+
 def _explode_by_sampled_biases(df: pd.DataFrame) -> pd.DataFrame:
     """
     One row per (example, bias): copy core columns and set ``new_rejected`` from
@@ -178,6 +183,7 @@ def main() -> None:
         _results_subdir,
     ) = _resolve_paths(analysis_path, model_path, args.bias_json)
 
+    _log_stage("Stage 0/3: Prepare inputs and bias files")
     logger.info("Analysis data: %s", analysis_path)
 
     if not model_basic_bias.exists():
@@ -186,7 +192,7 @@ def main() -> None:
     with open(model_basic_bias, encoding="utf-8") as f:
         biases = json.load(f)
 
-    # --- Stage 1: teacher rewrites rejected side ---
+    _log_stage("Stage 1/3: Teacher rewrites rejected responses")
     df = pd.read_parquet(analysis_path)
     df_tagged = build_sampled_bias_col(df, biases, m=1, seed=seed)
     api_teacher: OpenAICompatCompletionEngine | None = None
@@ -229,12 +235,13 @@ def main() -> None:
         del teacher_llm
         torch.cuda.empty_cache()
 
+    logger.info("Building attacked pairs from sampled biases.")
     attacked_df = _explode_by_sampled_biases(df_rejected)
     apply_new_rejected_to_responses(attacked_df)
     attacked_df.to_parquet(attacked_path, index=False)
     logger.info("Wrote attacked preference data to %s", attacked_path)
 
-    # --- Stage 2: judge + explanations on errors ---
+    _log_stage("Stage 2/3: Judge scoring and wrong-case explanations")
     judge_llm = LLM(
         model=model_path,
         tensor_parallel_size=llm_tp,
@@ -245,6 +252,7 @@ def main() -> None:
     )
     tokenizer = judge_llm.get_tokenizer()
     attacked_df = pd.read_parquet(attacked_path)
+    logger.info("Running judge on attacked pairs.")
     judge_prompts = build_judge_prompts(attacked_df, tokenizer)
     judge_raw = generate_in_batch(
         judge_prompts, judge_llm, batch_size=batch_size, sampling_params=sampling
@@ -253,6 +261,7 @@ def main() -> None:
     attacked_df["reasoning process"] = judge_text
 
     wrong_df = _find_wrong_predictions(attacked_df, judge_text)
+    logger.info("Generating explanations for wrong predictions.")
     explain_prompts = _build_explain_prompts(wrong_df, tokenizer)
     explain_raw = generate_in_batch(
         explain_prompts, judge_llm, batch_size=batch_size, sampling_params=sampling
@@ -264,7 +273,7 @@ def main() -> None:
     del judge_llm
     torch.cuda.empty_cache()
 
-    # --- Stage 3: bias detection and merge ---
+    _log_stage("Stage 3/3: Bias detection and library merge")
     wrong_df = pd.read_parquet(wrong_path)
     if teacher_backend == "api":
         teacher_for_detect = api_teacher
@@ -292,6 +301,7 @@ def main() -> None:
     if teacher_backend != "api":
         del teacher_for_detect
         torch.cuda.empty_cache()
+    _log_stage("Pipeline finished: attack + analysis completed")
 
 
 if __name__ == "__main__":

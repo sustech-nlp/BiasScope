@@ -28,11 +28,22 @@ LLM-as-a-judge is widely used, but **evaluation bias** undermines reliability. B
 
 ## Requirements
 
-Install:
+Create a virtual environment, activate it, then install dependencies.
+
+**venv**
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
 
+**Conda**
+
+```bash
+conda create -n biasscope python=3.11
+conda activate biasscope
+pip install -r requirements.txt
 ```
 
 If `torch` / `vLLM` wheels fail, use the [vLLM install guide](https://docs.vllm.ai) and a matching PyTorch CUDA index.

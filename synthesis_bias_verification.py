@@ -47,6 +47,11 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 logger = logging.getLogger(__name__)
 
 
+def _log_stage(title: str) -> None:
+    bar = "=" * 22
+    logger.info("%s %s %s", bar, title, bar)
+
+
 def _compute_domain_error_rates(
     df: pd.DataFrame, preds: list[str | None]
 ) -> Dict[str, float]:
@@ -179,6 +184,7 @@ def main() -> None:
     teacher_path = args.teacher_model_path
     teacher_backend = args.teacher_backend
 
+    _log_stage("Stage 0/4: Prepare paths, history, and input data")
     sampling = SamplingParams(temperature=0, max_tokens=max_tokens)
     basic_bias = Path(args.bias_json)
 
@@ -209,6 +215,7 @@ def main() -> None:
 
     test_df = pd.read_parquet(test_path)
 
+    _log_stage("Stage 1/4: Build bias-conditioned attacked test set")
     biases = extract_new_biases_json(model_basic_bias, model_extend_bias)
     n_biases = len(biases)
     df_tagged = build_sampled_bias_col(test_df, biases, m=n_biases, seed=seed)
@@ -252,7 +259,9 @@ def main() -> None:
         torch.cuda.empty_cache()
 
     df_rejected.to_parquet(attacked_all_biases_path, index=False)
+    logger.info("Saved attacked test data to %s", attacked_all_biases_path)
 
+    _log_stage("Stage 2/4: Judge baseline error on original responses")
     judge_llm = LLM(
         model=model_path,
         tensor_parallel_size=llm_tp,
@@ -271,6 +280,7 @@ def main() -> None:
     logger.info("origin overall error = %.4f", origin_rates["overall"])
     avg_results["origin"] = origin_rates
 
+    _log_stage("Stage 3/4: Per-bias verification loop")
     for bias_name in tqdm(list(biases.keys()), desc="per-bias verification"):
         rej_col = f"{bias_name}_rejected"
         tmp_df = df_rejected.copy()
@@ -284,6 +294,7 @@ def main() -> None:
         logger.info("%s overall error = %.4f", bias_name, rates["overall"])
         avg_results[bias_name] = rates
 
+    _log_stage("Stage 4/4: Save results and update bias history")
     _save_bias_history(
         avg_results=avg_results,
         model_basic_bias=model_basic_bias,
@@ -299,6 +310,7 @@ def main() -> None:
         result_path=results_path,
         test_data_tag=test_data_tag,
     )
+    _log_stage("Pipeline finished: synthesis + verification completed")
 
 
 if __name__ == "__main__":

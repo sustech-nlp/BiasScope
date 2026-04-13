@@ -1,12 +1,9 @@
 # BiasScope — Python dependencies
 
 # --- imported directly by this repository ---
-numpy==2.2.6
-pandas==2.3.3
-pyarrow==22.0.0
-openai==2.15.0
+numpy==1.26.4
+pandas==2.3.1
+pyarrow==21.0.0
+openai==1.97.1
 tqdm==4.67.1
-
-# --- inference stack (heavy; pulls most of the lock file) ---
-torch==2.9.1
-vllm==0.15.0
+vllm>=0.6.0
