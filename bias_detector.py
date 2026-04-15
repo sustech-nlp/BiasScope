@@ -1,5 +1,5 @@
 """
-BiasScope — bias detection and library merge (Lai et al., ICLR 2026; arXiv:2602.09383).
+BiasScope — bias detection and library merge.
 
 Uses a teacher backend with a vLLM-compatible ``.generate`` API (local vLLM or HTTP wrapper).
 
