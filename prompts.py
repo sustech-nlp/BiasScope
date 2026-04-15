@@ -1,10 +1,4 @@
-"""
-BiasScope — prompt templates (Lai et al., ICLR 2026; https://arxiv.org/abs/2602.09383).
 
-Covers judge evaluation, bias-conditioned rewriting, error explanation, and bias detection.
-
-All strings are English so they can be passed directly to instruction-tuned models.
-"""
 
 # ---------------------------------------------------------------------------
 # Bias-conditioned answer generation (teacher model)
