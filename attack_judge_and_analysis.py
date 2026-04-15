@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-BiasScope — attack, judge, explain, and detect biases (Lai et al., ICLR 2026).
-
-Paper: https://arxiv.org/abs/2602.09383
+BiasScope — attack, judge, explain, and detect biases.
 
 Stages
 ------
