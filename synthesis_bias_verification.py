@@ -2,9 +2,6 @@
 """
 BiasScope — synthesis and verification stage (error rates under bias-conditioned rewrites).
 
-Reference: Lai et al., "BiasScope: Towards Automated Detection of Bias in LLM-as-a-Judge
-Evaluation", ICLR 2026. https://arxiv.org/abs/2602.09383
-
 For every bias in the (possibly extended) library, swaps the rejected side with the
 teacher-rewritten text, optionally shuffles A/B for position debiasing, and logs
 per-domain error rates. Effective biases (higher error than baseline) can be merged
